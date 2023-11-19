@@ -66,3 +66,28 @@ for version; do
 		} > "$version/$dir/Dockerfile"
 	done
 done
+
+# Generate JSON for CI jobs using upstream generate.sh script. We use the
+# upstream php library to generate the JSON. We need to ensure that the
+# GITHUB_REPOSITORY environment variable is set appropriately, then re-set
+# it once we're done.
+echo "Generate JSON structure for CI jobs..."
+cd lib/php
+if env | grep -q "GITHUB_REPOSITORY="; then
+	temp_GITHUB_REPOSITORY="$GITHUB_REPOSITORY"
+	export GITHUB_REPOSITORY="docker-library/php"
+	strategy="$("../bashbrew/scripts/github-actions/generate.sh")"
+	export GITHUB_REPOSITORY="$temp_GITHUB_REPOSITORY"
+else
+	export GITHUB_REPOSITORY="docker-library/php"
+	strategy="$("../bashbrew/scripts/github-actions/generate.sh")"
+	unset GITHUB_REPOSITORY
+fi
+cd ../..
+
+# Replace "php" with "drupal-php" in generated JSON
+strategy="$(echo "$strategy" | sed -e "s/php/drupal-php/g")"
+
+# The CI job picks up the output from this script and uses it to generate jobs
+echo "$strategy" > "versions-ci-json.lock"
+echo "JSON for CI jobs saved to versions-ci-json.lock"
