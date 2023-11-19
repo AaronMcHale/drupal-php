@@ -3,8 +3,6 @@ name: GitHub CI
 on:
   pull_request:
   push:
-  schedule:
-    - cron: 0 0 * * 0
 
 defaults:
   run:
@@ -12,8 +10,23 @@ defaults:
 
 jobs:
 
+  verify-templates:
+    name: Check For Uncomitted Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download libraries
+        run: ./download-libs.sh
+      - name: Apply Templates
+        run: ./apply-templates.sh
+      - name: Check Git Status
+        run: |
+          status="$(git status --short)"
+          [ -z "$status" ]
+
   generate-jobs:
     name: Generate Jobs
+    needs: verify-templates
     runs-on: ubuntu-latest
     outputs:
       strategy: ${{ steps.generate-jobs.outputs.strategy }}
