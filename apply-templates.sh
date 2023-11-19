@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
+#
+# Based on apply-templates.sh in lib/php
 set -Eeuo pipefail
 
-# Get the versions.json from lib/php
-if [ ! -f versions.json ]; then
-	cp lib/php/versions.json .
+if [ ! -f lib/php/versions.json ] || [ ! -f lib/bashbrew/scripts/jq-template.awk ]; then
+	echo "Cannot find library files to copy from, run ./download-libs.sh"
+	exit 1
 fi
 
+# Get the latest files from lib
+cp -f lib/php/versions.json .
+cp -f lib/bashbrew/scripts/jq-template.awk .jq-template.awk
 jqt='.jq-template.awk'
-if [ -n "${BASHBREW_SCRIPTS:-}" ]; then
-	jqt="$BASHBREW_SCRIPTS/jq-template.awk"
-elif [ "$BASH_SOURCE" -nt "$jqt" ]; then
-	# https://github.com/docker-library/bashbrew/blob/master/scripts/jq-template.awk
-	wget -qO "$jqt" 'https://github.com/docker-library/bashbrew/raw/9f6a35772ac863a0241f147c820354e4008edf38/scripts/jq-template.awk'
-fi
 
 if [ "$#" -eq 0 ]; then
 	versions="$(jq -r 'keys | map(@sh) | join(" ")' versions.json)"
