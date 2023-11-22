@@ -86,7 +86,7 @@ fi
 cd ../..
 
 # Replace "php" with "drupal-php" in generated JSON
-strategy="$(echo "$strategy" | sed -e "s/php/drupal-php/g")"
+strategy="$(echo "$strategy" | sed -e "s/php/aaronmchale\/drupal-php/g")"
 
 # The CI job picks up the output from this script and uses it to generate jobs
 echo "$strategy" > "versions-ci-json.lock"
