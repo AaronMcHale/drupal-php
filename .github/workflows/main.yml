@@ -48,3 +48,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+      - name: Prepare Environment
+        run: ${{ matrix.runs.prepare }}
+      - name: Pull Dependencies
+        run: ${{ matrix.runs.pull }}
+      - name: Build ${{ matrix.name }}
+        run: ${{ matrix.runs.build }}
+      - name: History ${{ matrix.name }}
+        run: ${{ matrix.runs.history }}
+      - name: Test ${{ matrix.name }}
+        run: ${{ matrix.runs.test }}
+      - name: '"docker images"'
+        run: ${{ matrix.runs.images }}
