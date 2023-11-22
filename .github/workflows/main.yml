@@ -1,8 +1,9 @@
 name: GitHub CI
 
 on:
-  pull_request:
   push:
+    branches:
+      - 'main'
 
 defaults:
   run:
