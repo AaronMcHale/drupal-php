@@ -5,3 +5,17 @@
 #
 
 FROM php:8.2-fpm-alpine3.18
+
+# Install PHP extensions which are recommended for Drupal,
+# `mlocati/php-extension-installer` provides an easy way to install extensions.
+# https://github.com/mlocati/docker-php-extension-installer/blob/master/README.md
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions \
+    apcu \
+    gd \
+    mysqli \
+    opcache \
+    pdo_pgsql \
+    pdo_mysql \
+    pgsql \
+    uploadprogress
