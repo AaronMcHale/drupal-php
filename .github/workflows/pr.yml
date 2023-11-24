@@ -1,9 +1,10 @@
-name: GitHub CI
+name: PR workflow
 
 on:
   pull_request:
 
 jobs:
+
   common:
     uses: ./.github/workflows/common.yml
 
