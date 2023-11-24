@@ -1,3 +1,5 @@
+name: GitHub CI
+
 on:
   pull_request:
 
