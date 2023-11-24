@@ -36,5 +36,4 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push ${{ matrix.name }}
-        if: github.ref == 'refs/heads/master'
         run: docker push --all-tags aaronmchale/drupal-php
