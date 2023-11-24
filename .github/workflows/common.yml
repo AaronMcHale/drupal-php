@@ -2,6 +2,10 @@ name: Common jobs workflow
 
 on:
   workflow_call:
+    outputs:
+      strategy:
+        description: "Matrix strategy for generating jobs"
+        value: ${{ jobs.generate-jobs.outputs.strategy }}
     
 defaults:
   run:
