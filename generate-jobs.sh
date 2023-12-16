@@ -35,6 +35,29 @@ transform_tags() {
     printf "${tags:0:-1}"
 }
 
+# Transform format of arches
+transform_arches() {
+    if [ -z "$1" ]; then
+        echo 'call to transform_arches() resulted in error: $1 must not be emtpy, argument 1 is required.' >&1
+        exit 1
+    fi
+    input="$1"
+    # we need to add an extra comma to the end otherwise the last value may
+    # not be included
+    if [ "${input:-1}" != ',' ]; then
+        input="$input"','
+    fi
+    platform='linux'
+    arches="$(
+        while read -d ',' -r arch; do
+            if [ ! -z "$arch" ]; then
+                printf "%s/%s," "$platform" "$arch"
+            fi
+        done <<< "$input"
+    )"
+    printf "${arches:0:-1}"
+}
+
 # helper function to output test error messages
 # `$1`: name of function
 # `$2`: input sent to function
@@ -116,6 +139,26 @@ test_transform_tags() {
 }
 test_transform_tags
 
+# Tests for `transform_arches()` function to ensure it's working as expected
+test_transform_arches() {
+    # Test single value, platform added
+    input="amd64"
+    expected="linux/amd64"
+    got="$(transform_arches "$input")"
+    if [ "$got" != "$expected" ]; then
+        exit_with_test_error "transform_arches" "$input" "$expected" "$got"
+    fi
+
+    # Test adding comma to end of string
+    input="amd64,"
+    expected="linux/amd64"
+    got="$(transform_arches "$input")"
+    if [ "$got" != "$expected" ]; then
+        exit_with_test_error "transform_arches" "$input" "$expected" "$got"
+    fi
+}
+test_transform_arches
+
 if [ ! -f lib/php/generate-stackbrew-library.sh ]; then
 	echo "Cannot find library files to copy from, run ./download-libs.sh"
 	exit 1
@@ -159,7 +202,7 @@ set -Eeuo pipefail
         "Tags")
             tags="$(transform_tags "$value")" ;;
         "Architectures")
-            arches="${value/arm32v5,/}" ;;
+            arches="$(transform_arches "$value")" ;;
         "Directory")
             dir="$value"
             # For the name of this job, we use the value of `$dir` but
