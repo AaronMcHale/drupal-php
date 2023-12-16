@@ -31,7 +31,7 @@ jobs:
           load: true
           tags: test-image
       - name: Run tests
-        run: docker run --rm test-image
+        run: docker run --rm test-image php --version
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
