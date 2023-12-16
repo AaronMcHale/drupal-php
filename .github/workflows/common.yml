@@ -39,6 +39,6 @@ jobs:
       - id: generate-jobs
         name: Generate Jobs
         run: |
-          strategy="$(cat versions-ci-json.lock)"
+          strategy="$(./generate-jobs.sh)"
           echo "strategy=$strategy" >> "$GITHUB_OUTPUT"
           jq . <<<"$strategy" # sanity check / debugging aid

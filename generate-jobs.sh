@@ -176,11 +176,7 @@ set -Eeuo pipefail
             \"name\": \"$name\",
             \"dir\": \"$dir\",
             \"tags\": \"$tags\",
-            \"arches\": \"$arches\",
-            \"runs\": {
-                \"prepare\": \"git clone --depth 1 https://github.com/docker-library/official-images.git -b master ~/oi\n# https://github.com/docker-library/bashbrew/pull/43\n# create a dummy empty image/layer so we can --filter since= later to get a meaningful image list\n{ echo FROM busybox:latest; echo RUN :; } | docker build --no-cache --tag image-list-marker -\",
-                \"images\": \"docker image ls --filter since=image-list-marker\"
-            }
+            \"arches\": \"$arches\"
         }"
         # Reset variables to empty strings, the next line should be the start
         # of a new version/variant.
