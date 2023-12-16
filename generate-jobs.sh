@@ -159,7 +159,7 @@ set -Eeuo pipefail
         "Tags")
             tags="$(transform_tags "$value")" ;;
         "Architectures")
-            arches="$value" ;;
+            arches="${value/arm32v5,/}" ;;
         "Directory")
             dir="$value"
             # For the name of this job, we use the value of `$dir` but
