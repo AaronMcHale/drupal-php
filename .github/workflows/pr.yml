@@ -15,26 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Pull dependencies
+      - name: Build image
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.dir }}
-          pull: true
-      - name: Build test image
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.dir }}
-          load: true
-          tags: test-image
-      - name: Run tests
-        run: docker run --rm test-image php --version
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ matrix.dir }}
-          platforms: ${{ matrix.arches }}
           tags: ${{ matrix.tags }}
