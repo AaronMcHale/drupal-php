@@ -3,7 +3,7 @@
 # Based on apply-templates.sh in lib/php
 set -Eeuo pipefail
 
-if [ ! -f lib/php/versions.json ] || [ ! -f lib/bashbrew/scripts/jq-template.awk ]; then
+if [ ! -f lib/php/versions.json ]; then
 	echo "Cannot find library files to copy from, run ./download-libs.sh"
 	exit 1
 fi
