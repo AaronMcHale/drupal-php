@@ -36,9 +36,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker-library/bashbrew@HEAD
+      - name: Download libraries
+        run: ./download-libs.sh
       - id: generate-jobs
         name: Generate Jobs
         run: |
-          strategy="$(cat versions-ci-json.lock)"
+          strategy="$(./generate-jobs.sh)"
           echo "strategy=$strategy" >> "$GITHUB_OUTPUT"
           jq . <<<"$strategy" # sanity check / debugging aid
