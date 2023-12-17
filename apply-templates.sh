@@ -10,8 +10,14 @@ fi
 
 # Get the latest files from lib
 cp -f lib/php/versions.json .
-cp -f lib/bashbrew/scripts/jq-template.awk .jq-template.awk
+
 jqt='.jq-template.awk'
+if [ -n "${BASHBREW_SCRIPTS:-}" ]; then
+	jqt="$BASHBREW_SCRIPTS/jq-template.awk"
+elif [ "$BASH_SOURCE" -nt "$jqt" ]; then
+	# https://github.com/docker-library/bashbrew/blob/master/scripts/jq-template.awk
+	wget -qO "$jqt" 'https://github.com/docker-library/bashbrew/raw/9f6a35772ac863a0241f147c820354e4008edf38/scripts/jq-template.awk'
+fi
 
 if [ "$#" -eq 0 ]; then
 	versions="$(jq -r 'keys | map(@sh) | join(" ")' versions.json)"
@@ -66,28 +72,3 @@ for version; do
 		} > "$version/$dir/Dockerfile"
 	done
 done
-
-# Generate JSON for CI jobs using upstream generate.sh script. We use the
-# upstream php library to generate the JSON. We need to ensure that the
-# GITHUB_REPOSITORY environment variable is set appropriately, then re-set
-# it once we're done.
-echo "Generate JSON structure for CI jobs..."
-cd lib/php
-if env | grep -q "GITHUB_REPOSITORY="; then
-	temp_GITHUB_REPOSITORY="$GITHUB_REPOSITORY"
-	export GITHUB_REPOSITORY="docker-library/php"
-	strategy="$("../bashbrew/scripts/github-actions/generate.sh")"
-	export GITHUB_REPOSITORY="$temp_GITHUB_REPOSITORY"
-else
-	export GITHUB_REPOSITORY="docker-library/php"
-	strategy="$("../bashbrew/scripts/github-actions/generate.sh")"
-	unset GITHUB_REPOSITORY
-fi
-cd ../..
-
-# Replace "php" with "drupal-php" in generated JSON
-strategy="$(echo "$strategy" | sed -e "s/php/aaronmchale\/drupal-php/g")"
-
-# The CI job picks up the output from this script and uses it to generate jobs
-echo "$strategy" > "versions-ci-json.lock"
-echo "JSON for CI jobs saved to versions-ci-json.lock"
