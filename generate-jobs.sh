@@ -55,6 +55,14 @@ transform_arches() {
             fi
         done <<< "$input"
     )"
+    # We need to transform "v" in some arches to be "/v", so that,
+    # for instance, "arm32v6" becomes "arm32/v6", but only when "v" is
+    # followed by numbers. This helps avoids any accidental replacement when
+    # "v" may appear in the architecture name somewhere else.
+    # Find: `v\([0-9]\+\)`, `v` followed by any number;
+    # Replacement: `\/v\1`, `v` followed by the original number (`\1` is the
+    # matched number).
+    arches="$(printf "$arches" | sed 's/v\([0-9]\+\)/\/v\1/g')"
     printf "${arches:0:-1}"
 }
 
@@ -152,6 +160,22 @@ test_transform_arches() {
     # Test adding comma to end of string
     input="amd64,"
     expected="linux/amd64"
+    got="$(transform_arches "$input")"
+    if [ "$got" != "$expected" ]; then
+        exit_with_test_error "transform_arches" "$input" "$expected" "$got"
+    fi
+
+    # Test single value, with version (lower "v")
+    input="arm32v7"
+    expected="linux/arm32/v7"
+    got="$(transform_arches "$input")"
+    if [ "$got" != "$expected" ]; then
+        exit_with_test_error "transform_arches" "$input" "$expected" "$got"
+    fi
+
+    # Test real string
+    input="amd64,arm32v5,arm32v7,arm64v8,i386,mips64le,ppc64le,s390x"
+    expected="linux/amd64,linux/arm32/v5,linux/arm32/v7,linux/arm64/v8,linux/i386,linux/mips64le,linux/ppc64le,linux/s390x"
     got="$(transform_arches "$input")"
     if [ "$got" != "$expected" ]; then
         exit_with_test_error "transform_arches" "$input" "$expected" "$got"
