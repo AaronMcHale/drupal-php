@@ -13,9 +13,5 @@ COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr
 RUN install-php-extensions \
     apcu \
     gd \
-    mysqli \
     opcache \
-    pdo_pgsql \
-    pdo_mysql \
-    pgsql \
     uploadprogress
