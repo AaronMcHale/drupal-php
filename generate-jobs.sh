@@ -62,7 +62,12 @@ transform_arches() {
     # Find: `v\([0-9]\+\)`, `v` followed by any number;
     # Replacement: `\/v\1`, `v` followed by the original number (`\1` is the
     # matched number).
-    arches="$(printf "$arches" | sed 's/v\([0-9]\+\)/\/v\1/g')"
+    # "arm32" needs to be replaced with just "arm"
+    arches="$(
+        printf "$arches" | sed \
+            -e 's/v\([0-9]\+\)/\/v\1/g' \
+            -e 's/arm32/arm/g'
+    )"
     printf "${arches:0:-1}"
 }
 
@@ -166,8 +171,16 @@ test_transform_arches() {
     fi
 
     # Test single value, with version (lower "v")
-    input="arm32v7"
-    expected="linux/arm32/v7"
+    input="arm64v8"
+    expected="linux/arm64/v8"
+    got="$(transform_arches "$input")"
+    if [ "$got" != "$expected" ]; then
+        exit_with_test_error "transform_arches" "$input" "$expected" "$got"
+    fi
+
+    # Test replacing "arm32" with "arm"
+    input="arm32"
+    expected="linux/arm"
     got="$(transform_arches "$input")"
     if [ "$got" != "$expected" ]; then
         exit_with_test_error "transform_arches" "$input" "$expected" "$got"
@@ -175,7 +188,7 @@ test_transform_arches() {
 
     # Test real string
     input="amd64,arm32v5,arm32v7,arm64v8,i386,mips64le,ppc64le,s390x"
-    expected="linux/amd64,linux/arm32/v5,linux/arm32/v7,linux/arm64/v8,linux/i386,linux/mips64le,linux/ppc64le,linux/s390x"
+    expected="linux/amd64,linux/arm/v5,linux/arm/v7,linux/arm64/v8,linux/i386,linux/mips64le,linux/ppc64le,linux/s390x"
     got="$(transform_arches "$input")"
     if [ "$got" != "$expected" ]; then
         exit_with_test_error "transform_arches" "$input" "$expected" "$got"
